@@ -3,7 +3,7 @@
 -- @usage implements functions to read and manipulate TD sensor data, namely for td_grip_control_v2 application
 -- @name td_control_fncs_v2
 -- version v2
--- 2023-11-14
+-- 2023-12-15
 
 local NAME = ...    -- require name search capture
 local M = { }       -- module functions table
@@ -76,7 +76,7 @@ end
 -- @param t_row Number of rows provided
 -- @param t_col Number of coloumns provided
 -- @param endian Little/Big-Endian byte format [0: Little Endian | 1: Big Endian]
--- @return 2-dimensional table with t_row*t_col
+-- @return 2-dimensional table with t_row*t_col 
 function M.combine_data_to_array(data_table,n_byte_p_val,endian_format,t_row, t_col)
     local data_byte_comb = {}
     local n_r_arr = t_row
@@ -178,7 +178,7 @@ function M.get_finger_data(finger_index)
     while((read_valid ~= 1) and (try_count < TIMEOUT_TD_TRY)) do
         try_count = try_count + 1
         finger.write(f_indx, READ_DATA_COMMAND)
-        sleep(TIMEOUT_TD_DIVIDER)
+        --sleep(TIMEOUT_TD_DIVIDER)
         
         while((timeout_count ~= TIMEOUT_TD_MS*TIMEOUT_TD_DIVIDER) and (bytes_available ~= ACK_PACKAGE_SIZE)) do
             bytes_available = finger.bytes_available(f_indx)
@@ -186,7 +186,7 @@ function M.get_finger_data(finger_index)
             sleep(TIMEOUT_TD_DIVIDER);
         end
 
-        if timeout_count == TIMEOUT_TD_MS then
+        if timeout_count == (TIMEOUT_TD_MS*TIMEOUT_TD_DIVIDER) then
             if bytes_available ~= 0 then
                 finger.read(f_indx)
             end
@@ -203,7 +203,7 @@ function M.get_finger_data(finger_index)
             printf("!!! READ ERROR on TD finger: %d \n", f_indx)
             reply = {-1}
             timeout_count = 0
-            while(timeout_count <= 150) do
+            while(timeout_count <= 160) do
                 timeout_count = timeout_count + 10
                 sleep(10);
             end
@@ -248,7 +248,7 @@ function M.get_data_buffered()
     end
 end
 
--- Checks if array has more specified number of data points over specified level
+-- Checks if array has more specified number of data points over specified level 
 -- @param arr The array which should be checked
 -- @param val The value which is evaluated as level/threshold
 -- @param aim The aim of points exxeding the level
